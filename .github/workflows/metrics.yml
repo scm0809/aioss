@@ -1,0 +1,23 @@
+name: Track Lead Time
+
+on:
+  pull_request:
+    types: [closed] # PR이 닫혔을 때 실행
+
+jobs:
+  track-lead-time:
+    # PR이 단순히 닫힌 게 아니라, '병합(Merged)'되었을 때만 실행되도록 조건 설정
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Calculate Lead Time
+        run: |
+          # PR 생성 시간과 병합 시간을 가져옴
+          FIRST_COMMIT_TIME="${{ github.event.pull_request.created_at }}"
+          MERGE_TIME="${{ github.event.pull_request.merged_at }}"
+          
+          # 두 시간의 차이를 초(seconds) 단위로 계산
+          LEAD_TIME=$(( $(date -d "$MERGE_TIME" +%s) - $(date -d "$FIRST_COMMIT_TIME" +%s) ))
+          
+          echo "Lead Time: $LEAD_TIME seconds"
